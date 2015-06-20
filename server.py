@@ -11,16 +11,15 @@ PORT = int(os.getenv('VCAP_APP_PORT', 8000))
 # Change current directory to avoid exposure of control files
 os.chdir('static')
 
-# httpd = Server(("", PORT), Handler)
-# try:
-#   print("Start serving at port %i" % PORT)
-#   httpd.serve_forever()
-# except KeyboardInterrupt:
-#   pass
-# httpd.server_close()
-
-#!flask/bin/python
+httpd = Server(("", PORT), Handler)
+try:
+  print("Start serving at port %i" % PORT)
+  httpd.serve_forever()
+except KeyboardInterrupt:
+  pass
 from app import app
-app.run(host='',port=PORT)
+app.run()
+httpd.server_close()
+
 
 

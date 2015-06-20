@@ -1,15 +1,9 @@
 """
-Rec-Sys is a login based database system implementing the recommendation system
-for searching of Documents
 """
 
 # all the imports
 from flask import render_template, flash, redirect, session, url_for, request, g
-from flask.ext.login import login_user, logout_user, current_user, login_required
-from app import app, lm
-
-
-
+from app import app
 import requests
 
 # @lm.user_loader
@@ -24,7 +18,7 @@ import requests
 #     g.user = current_user
 
 
-@app.route('/')
+@app.route('/index')
 def index():
     """Index Redirect Page"""
     image = open('phototest.tif','rb')
@@ -48,7 +42,7 @@ def index():
 
 @app.errorhandler(404)
 def page_not_found(error):
-    """redirect wrong urls to login or database"""
+    """redirect wrong urls to inxed"""
     return redirect(url_for('index'))
 
 if __name__ == '__main__':
