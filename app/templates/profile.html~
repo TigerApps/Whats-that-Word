@@ -1,0 +1,11 @@
+{% extends "layout2.html" %}
+  
+{% block content %}
+    
+<div>
+{{ user.username }}{{ user.department }}{{ user.company }}{{ doc }}
+{{ doc.body }}
+
+</div>
+
+{% endblock %}
