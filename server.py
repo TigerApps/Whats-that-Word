@@ -1,4 +1,8 @@
 import os
+from flask import Flask
+from flask import render_template, flash, redirect, session, url_for, request
+import requests
+
 try:
   from SimpleHTTPServer import SimpleHTTPRequestHandler as Handler
   from SocketServer import TCPServer as Server
@@ -6,27 +10,31 @@ except ImportError:
   from http.server import SimpleHTTPRequestHandler as Handler
   from http.server import HTTPServer as Server
 
-# Read port selected by the cloud for our application
-PORT = int(os.getenv('VCAP_APP_PORT', 8000))
-# Change current directory to avoid exposure of control files
-os.chdir('static')
-
-httpd = Server(("", PORT), Handler)
-try:
-  print("Start serving at port %i" % PORT)
-  httpd.serve_forever()
-except KeyboardInterrupt:
-  pass
-
-from flask import Flask
-from flask import render_template, flash, redirect, session, url_for, request, g
-from app import app
-import requests
 
 app = Flask(__name__)
 
+# Read port selected by the cloud for our application
+PORT = int(os.getenv('VCAP_APP_PORT', 8000))
+# Change current directory to avoid exposure of control files
+#os.chdir('static')
+
+# httpd = Server(("", PORT), Handler)
+# try:
+#   print("Start serving at port %i" % PORT)
+#   httpd.serve_forever()
+# except KeyboardInterrupt:
+#  pass
+
+#PORT = 8000
+ 
+#print PORT
 
 @app.route('/')
+def hello_world():
+    #return render_template('index.html')
+    return redirect(url_for('index'))
+
+@app.route('/index2')
 def index():
     """Index Redirect Page"""
     image = open('phototest.tif','rb')
@@ -51,9 +59,10 @@ def index():
 @app.errorhandler(404)
 def page_not_found(error):
     """redirect wrong urls to inxed"""
-    return redirect(url_for('index'))
+    return "bad"
 
 
 
 
 
+app.run(host='0.0.0.0',port=PORT)
