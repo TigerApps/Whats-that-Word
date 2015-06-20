@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>DataBase</title>    
+    <title>Whats The Word</title>    
     <strong><link rel="stylesheet" href="{{ url_for('static', filename='stylesheets/main.css') }}"></strong>
   </head>
   <body>
