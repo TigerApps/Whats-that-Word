@@ -107,30 +107,9 @@ def upload_file():
         #song =  (u'id'=u'wav'param={u'wav'=file})_ 
         file.close()
         return render_template('index.html', text=text, music=name)
-
-
     return  render_template('home.html')
-
-    
-# @app.route('/index2/<text>/<name>')
-# def index2(text,name):
-#     return render_template('index.html',text=text,music=name)
 
 
 port = os.getenv('VCAP_APP_PORT', '5000')
 if __name__ == "__main__":
 	app.run(host='0.0.0.0', port=int(port),debug=True)
-
-
-# class UploadForm(Form):
-#     image        = FileField(u'Image File', [validators.regexp([^\s]+(\.(?i)(jpg|png|gif|bmp))$)])
-#     def validate_image(form, field):
-#         if field.data:
-#             field.data = re.sub(r'[^a-z0-9_.-]', '_', field.data)
-
-# def upload(request):
-#     form = UploadForm(request.POST)
-#     if form.image.data:
-#         image_data = request.FILES[form.image.name].read()
-		
-#         open(os.path.join(UPLOAD_PATH, form.image.data), 'w').write(image_data)
