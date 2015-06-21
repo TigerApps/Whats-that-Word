@@ -5,7 +5,7 @@
     <h2>{{ text }}<h2>
     
 <audio controls autoplay>
-<source src="../static/music/{{ music }}" type="audio/wav">
+<source src="music/{{ music }}" type="audio/wav">
 Your browser does not support this audio format.
 </audio>
 

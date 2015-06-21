@@ -4,115 +4,117 @@ import requests
 import string
 from werkzeug import secure_filename
 
+app = Flask(__name__, static_folder='static', static_url_path='/static')
 
-app = Flask(__name__)
-
-
-UPLOAD_FOLDER = 'static/image/'
-app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+#UPLOAD_FOLDER = 'static/image/'
+#app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 ALLOWED_EXTENSIONS = set(['png', 'PNG', 'jpg', 'JPG', 'jpeg', 'JPEG', 'gif', 'GIF', 'tiff', 'TIFF'])
 
+#import cloudant
+
+# connect to your account
+# in this case, https://garbados.cloudant.com
+# USERNAME = "ca2a2ff1-a78d-453d-92f5-27dcdc18e536-bluemix"
+# PASSWORD = "3e519b6329052878063c266488bd41d9377c047d3cd38b8d8cb61ffe5feb976a"
+#account = cloudant.Account(USERNAME)
+# login, so we can make changes
+#login = account.login(USERNAME, PASSWORD)
+#assert login.status_code == 200
+# create a database object
+#db = account.database('my')
+
+#song = db.document('song_doc')
+
+##routes
 def allowed_file(filename):
     return '.' in filename and \
            filename.rsplit('.', 1)[1] in ALLOWED_EXTENSIONS
 
 @app.route('/', methods=['GET', 'POST'])
 def upload_file():
+    ##get file from user
     if request.method == 'POST':
         file = request.files['file']
         if file and allowed_file(file.filename):
             filename = secure_filename(file.filename)
             print filename
-            #file.save(UPLOAD_FOLDER)#os.path.join(app.config['UPLOAD_FOLDER'], filename))
-	    file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
-            #filename,ext = filename.split('.')
-	    #filename = "myfile."+ext
-            #image = open(UPLOAD_FOLDER+filename,'wb')
-	    #image.write(str(file))
-	    #image.close()
-	    
-            return redirect(url_for('index',
-                                    filename=filename))
+            name = filename
+        
+        ##image to text
+        url="http://api.idolondemand.com/1/api/sync/ocrdocument/v1"
+        apikey="9e791393-6bc4-461f-a0f1-58c3203b64b1"
+        def postrequests(function,data={},files={}):
+                   data["apikey"]=apikey
+                   callurl=url.format(function)
+                   r=requests.post(callurl,data=data,files=files)
+                   return r.json()
+        
+        result = None 
+        while not result:
+            result=postrequests('ocrdocument',data={},files={'file': file})
+        text =  result[u'text_block']
+        text = text[0]
+        text = text[u'text']
+        print text  
+        
+        ##language recognition
+        url = "https://gateway.watsonplatform.net/language-identification-beta/api"
+        username = "557a7074-4492-4237-9ee5-c0e1a334411f"
+        password = "aYga0TFTOvPP"
+        data = { 'txt': text, 'sid': "lid-generic" }
+        response=requests.post(url,auth=(username, password),data=data)
+        orig = response.content[0:2]+response.content[3:5]
+        orig = orig.lower()
+        print orig
+        
+        ##language translation
+        url = "https://gateway.watsonplatform.net/machine-translation-beta/api"
+        mysid = "mt-"+orig+"-enus"
+        username = "aa600dc3-7ad3-41a4-b742-fc70bf92d086"
+        password = "qhQudzTHwSqW"
+        data = { 'txt': text, 'sid': mysid }
+      
+        try:
+            response=requests.post(url,auth=(username, password),data=data)
+        except:
+            return "couldnt"
+        text = response.content
+        print text
+        
+        #text to speech
+        url = "https://stream.watsonplatform.net/text-to-speech-beta/api/v1/synthesize"
+        username = "561b8feb-f481-4fa1-bd28-8de0e41fdeb0"
+        password = "9bfsBYCbL2aM"
+        data = { 'voice': "VoiceEnUsMichael", 'text': text}
+        response = None 
+        while not response:
+            response=requests.get(url,auth=(username, password),params=data, headers={ 'accept': "audio/wav"}, stream=True, verify=False)
+        #name = "myfile.wav"
+        name = text[:10]+".wav"
+        # try:
+        #     os.remove("static/music/"+name)
+        # except:
+        #     pass
+        # name = name.replace(" ","_")
+        # text = text.replace(" ","_")
+        # for char in string.punctuation:
+        #     name = name.replace(char, '')
+        # name = name[:-3]+"."+name[-3:]
+        # for char in string.punctuation:
+        #     text = text.replace(char, '')
+        file = open("static/music/"+name,"w")
+        file.write(response.content)
+        #song =  (u'id'=u'wav'param={u'wav'=file})_ 
+        file.close()
+        return render_template('index.html', text=text, music=name)
+
+
     return  render_template('home.html')
 
-@app.route('/index/<filename>')
-def index(filename):
     
-    ##image to text
-    name = filename
-    image = open('static/image/'+name,'rb')
-    url="http://api.idolondemand.com/1/api/sync/ocrdocument/v1"
-    apikey="9e791393-6bc4-461f-a0f1-58c3203b64b1"
-    def postrequests(function,data={},files={}):
-               data["apikey"]=apikey
-               callurl=url.format(function)
-               r=requests.post(callurl,data=data,files=files)
-               return r.json()
-    
-    result = None 
-    while not result:
-    	result=postrequests('ocrdocument',data={},files={'file': image})
-    try:
-	os.remove('static/image/'+name)
-    except:
-	pass
-    text =  result[u'text_block']
-    text = text[0]
-    text = text[u'text']
-
-    
-    print text	
-    ##language recognition
-    url = "https://gateway.watsonplatform.net/language-identification-beta/api"
-    username = "557a7074-4492-4237-9ee5-c0e1a334411f"
-    password = "aYga0TFTOvPP"
-    data = { 'txt': text, 'sid': "lid-generic" }
-  
-    response=requests.post(url,auth=(username, password),data=data)
-    
-    orig = response.content[0:2]+response.content[3:5]
-    orig = orig.lower()
- 
-    print orig
-    ##language translation
-    url = "https://gateway.watsonplatform.net/machine-translation-beta/api"
-    mysid = "mt-"+orig+"-enus"
-    username = "aa600dc3-7ad3-41a4-b742-fc70bf92d086"
-    password = "qhQudzTHwSqW"
-    data = { 'txt': text, 'sid': mysid }
-  
-    try:
-    	response=requests.post(url,auth=(username, password),data=data)
-    except:
-	return "couldnt"
-    text = response.content
-
-    print text
-    #text to speech
-    url = "https://stream.watsonplatform.net/text-to-speech-beta/api/v1/synthesize"
-    username = "561b8feb-f481-4fa1-bd28-8de0e41fdeb0"
-    password = "9bfsBYCbL2aM"
-    data = { 'voice': "VoiceEnUsMichael", 'text': text}
-    response = None 
-    while not response:
-    	response=requests.get(url,auth=(username, password),params=data, headers={ 'accept': "audio/wav"}, stream=True, verify=False)
-    #name = "myfile.wav"
-    name = text[:10]+".wav"
-    try:
-        os.remove("static/music/"+name)
-    except:
-	pass
-
-    file = open("static/music/"+name,"w")
-    file.write(response.content)
-    file.close()
-
-    return redirect(url_for('index2', text=text, name=name))
-
-
-@app.route('/index2/<text>/<name>')
-def index2(text,name):
-	return render_template('index.html',text=text,music=name)
+# @app.route('/index2/<text>/<name>')
+# def index2(text,name):
+#     return render_template('index.html',text=text,music=name)
 
 
 port = os.getenv('VCAP_APP_PORT', '5000')
