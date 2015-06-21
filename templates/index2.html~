@@ -5,31 +5,17 @@
     <h2>Your Text:<h2>
     
 {% if show %}
-	{{ show }}
+
+
+
+
+
+<audio controls="controls">
+  Your browser does not support the <code>audio</code> element.
+  <source src="{{show}}" type="audio/wav">
+</audio>
+
 {% endif %}
 
-<div class="form-group row">
-<label for="select" class="col-lg-12 control-label">Select translation language:</label>
-								<div class="col-lg-12">
-									<select id="select" name="sid" class="form-control">
-									<option value="mt-enus-eses">English to Spanish</option>
-										<option value="mt-eses-enus">Spanish to English</option>
-										<option value="mt-enus-frfr">English to French</option>
-										<option value="mt-enus-ptbr">English to Portuguese</option>
-										<option value="mt-frfr-enus">French to English</option>
-										<option value="mt-ptbr-enus">Portuguese to English</option>
-										<option value="mt-arar-enus">Arabic to English</option>
-									</select>
-								</div>
-							</div>
-							<div style="margin-bottom: 0px; padding-top: 5px;"
-							class="form-group row">
-							<div class="col-lg-4 col-lg-push-8">
-								<button type="submit" class="btn btn-block">Translate</button>
-							</div>
-						</div>
-					</fieldset>
-</form>
-</div>
 
 {% endblock %}

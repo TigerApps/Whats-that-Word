@@ -1,7 +1,9 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>Whats The Word</title>    
+    <title>What's The Word</title>    
+    <script src="static/js/howler.min.js"></script>
+
     <strong><link rel="stylesheet" href="{{ url_for('static', filename='stylesheets/main.css') }}"></strong>
   </head>
   <body>

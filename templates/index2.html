@@ -5,7 +5,13 @@
     <h2>Your Text:<h2>
     
 {% if show %}
-	{{ show }}
+
+
+<audio controls autoplay>
+                <source src="static/music/{{ show }}" type="audio/wav">
+                Your browser does not support this audio format.
+</audio>
+
 {% endif %}
 
 
