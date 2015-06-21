@@ -2,17 +2,12 @@
   
 {% block content %}
   <div class="jumbo">
-    <h2>{{text}}<h2>
+    <h2>{{ text }}<h2>
     
-{% if show %}
-
-
 <audio controls autoplay>
 <source src="static/music/{{ music }}" type="audio/wav">
 Your browser does not support this audio format.
 </audio>
-
-{% endif %}
 
 
 {% endblock %}
