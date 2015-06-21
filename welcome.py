@@ -30,6 +30,7 @@ def allowed_file(filename):
     return '.' in filename and \
            filename.rsplit('.', 1)[1] in ALLOWED_EXTENSIONS
 
+@app.route('/about', methods=['GET', 'POST'])
 @app.route('/', methods=['GET', 'POST'])
 def upload_file():
     ##get file from user
@@ -37,7 +38,10 @@ def upload_file():
         file = request.files['file']
         if file and allowed_file(file.filename):
             filename = secure_filename(file.filename)
-            print filename
+            try:
+                print filename  
+            except:
+                pass
             name = filename
         
         ##image to text
@@ -55,8 +59,10 @@ def upload_file():
         text =  result[u'text_block']
         text = text[0]
         text = text[u'text']
-        print text  
-        
+        try:
+            print text  
+        except:
+            pass
         ##language recognition
         url = "https://gateway.watsonplatform.net/language-identification-beta/api"
         username = "557a7074-4492-4237-9ee5-c0e1a334411f"
@@ -65,7 +71,10 @@ def upload_file():
         response=requests.post(url,auth=(username, password),data=data)
         orig = response.content[0:2]+response.content[3:5]
         orig = orig.lower()
-        print orig
+        try:
+            print orig  
+        except:
+            pass
         
         ##language translation
         url = "https://gateway.watsonplatform.net/machine-translation-beta/api"
@@ -79,7 +88,10 @@ def upload_file():
         except:
             return "couldnt"
         text = response.content
-        print text
+        try:
+            print text  
+        except:
+            pass
         
         #text to speech
         url = "https://stream.watsonplatform.net/text-to-speech-beta/api/v1/synthesize"
@@ -91,20 +103,8 @@ def upload_file():
             response=requests.get(url,auth=(username, password),params=data, headers={ 'accept': "audio/wav"}, stream=True, verify=False)
         #name = "myfile.wav"
         name = text[:10]+".wav"
-        # try:
-        #     os.remove("static/music/"+name)
-        # except:
-        #     pass
-        # name = name.replace(" ","_")
-        # text = text.replace(" ","_")
-        # for char in string.punctuation:
-        #     name = name.replace(char, '')
-        # name = name[:-3]+"."+name[-3:]
-        # for char in string.punctuation:
-        #     text = text.replace(char, '')
         file = open("static/music/"+name,"w")
         file.write(response.content)
-        #song =  (u'id'=u'wav'param={u'wav'=file})_ 
         file.close()
         return render_template('index.html', text=text, music=name)
     return  render_template('home.html')

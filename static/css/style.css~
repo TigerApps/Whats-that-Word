@@ -1,0 +1,146 @@
+body {
+    padding-top: 50px;
+}
+
+.em-text {
+    color: indianred !important;
+}
+
+section {
+    padding: 40px 0 40px 0;
+}
+
+
+.demo {
+    width: 100%;
+    padding: 3px;
+    border: 1px solid #ccc;
+}
+
+section#feature {
+    background: indianred;
+    color: #fff;
+    padding: 40px;
+    overflow: auto;
+}
+
+section#title-bar {
+    padding: 0;
+    margin: 0;
+    background: indianred;
+    color: #fff;
+    height: 80px;
+}
+
+section#about {
+    font-size: 30px;
+   
+}
+
+
+section#title-bar h1 {
+    margin-bottom: 20PX;
+}
+
+section#feature ul li {
+    font-size: 22px;
+    list-style: none;
+    line-height: 2m;
+    padding: 8px;
+}
+.modalx{
+width: 300px;
+display: block;
+margin-right: auto;
+margin-left: auto;
+}
+
+#fileInput{
+    width:200px;
+    display: block;
+margin-right: auto;
+margin-left: auto;
+}
+footer {
+    background: #404040;
+    color: white;
+    padding: 30px 0 20px 0;
+}
+/*----MEDIA QUERIES----*/
+
+@media(max-width:1200px) {
+    .showcase-img {
+        width: 452px !important;
+    }
+    .jumbotron {
+        height: 500px !important;
+        background-size: 100% 100%;
+    }
+    .jumbotron h1 {
+        margin-top: 10px;
+    }
+    section#feature {
+        padding: 20px !important;
+    }
+    section#feature ul li {
+        font-size: 20px !important;
+    }
+}
+
+@media(max-width:991px) {
+    /*section#middle div div div {
+        text-align: center !important;
+        width: 32% !important;
+        display: inline-block !important;
+    }*/
+    
+    .showcase-img {
+        display: none;
+    }
+    .jumbotron {
+        height: 500px !important;
+        background-size: 100% 100%;
+    }
+    .jumbotron h1 {
+        margin-top: 10px;
+    }
+}
+
+@media(min-width:768px) and (max-width:990px) {
+    .jumbotron img.app-btn {
+        width: 25%;
+        margin: 10px;
+    }
+    .jumbotron {
+        height: 450px !important;
+        background-size: 100% 100%;
+    }
+    .jumbotron h1 {
+        margin-top: 10px;
+    }
+}
+
+@media(max-width:768px) {
+    .jumbotron {
+        height: 350px !important;
+        background-size: 100% 100%;
+    }
+}
+
+@media(max-width:500px) {
+    .jumbotron {
+        height: 400px !important;
+        background-size: 100% 100%;
+    }
+    .jumbotron p {
+        font-size: 135% !important;
+        margin-bottom: 10px;
+    }
+    section#feature ul li {
+        font-size: 18px !important;
+    }
+    footer p {
+        float: none;
+        text-align: center !important;
+    }
+}
