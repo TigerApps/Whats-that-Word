@@ -54,8 +54,6 @@ def index():
     response=requests.post(url,auth=(username, password),data=data)
     text = response.content
 
-    print text
-
     #text to speech
     url = "https://stream.watsonplatform.net/text-to-speech-beta/api/v1/synthesize"
     username = "561b8feb-f481-4fa1-bd28-8de0e41fdeb0"
@@ -68,9 +66,6 @@ def index():
     
     os.remove("static/music/"+name)
 
-    temp = raw_input()
-    print temp
-
     file = open("static/music/"+name,"w")
     file.write(response.content)
     file.close()
@@ -81,3 +76,19 @@ def index():
 port = os.getenv('VCAP_APP_PORT', '5000')
 if __name__ == "__main__":
 	app.run(host='0.0.0.0', port=int(port),debug=True)
+
+
+
+# class UploadForm(Form):
+#     image        = FileField(u'Image File', [validators.regexp(u'^[^/\\]\.jpg$')])
+#     description  = TextAreaField(u'Image Description')
+
+#     def validate_image(form, field):
+#         if field.data:
+#             field.data = re.sub(r'[^a-z0-9_.-]', '_', field.data)
+
+# def upload(request):
+#     form = UploadForm(request.POST)
+#     if form.image.data:
+#         image_data = request.FILES[form.image.name].read()
+#         open(os.path.join(UPLOAD_PATH, form.image.data), 'w').write(image_data)
