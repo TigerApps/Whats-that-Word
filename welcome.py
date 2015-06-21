@@ -2,22 +2,53 @@ import os
 from flask import Flask,render_template, redirect, url_for, request
 import requests
 import string
+from werkzeug import secure_filename
+
 
 app = Flask(__name__)
 
-@app.route('/')
-def Welcome():
-	return 'Welcome to my app running on Bluemix!'
 
-@app.route('/index')
-def index():
+UPLOAD_FOLDER = 'static/image/'
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+ALLOWED_EXTENSIONS = set(['png', 'PNG', 'jpg', 'JPG', 'jpeg', 'JPEG', 'gif', 'GIF', 'tiff', 'TIFF'])
+
+def allowed_file(filename):
+    return '.' in filename and \
+           filename.rsplit('.', 1)[1] in ALLOWED_EXTENSIONS
+
+@app.route('/', methods=['GET', 'POST'])
+def upload_file():
+    if request.method == 'POST':
+        file = request.files['file']
+        if file and allowed_file(file.filename):
+            filename = secure_filename(file.filename)
+            print filename
+            #file.save(UPLOAD_FOLDER)#os.path.join(app.config['UPLOAD_FOLDER'], filename))
+	    file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+            #filename,ext = filename.split('.')
+	    #filename = "myfile."+ext
+            #image = open(UPLOAD_FOLDER+filename,'wb')
+	    #image.write(str(file))
+	    #image.close()
+	    
+            return redirect(url_for('index',
+                                    filename=filename))
+    return '''
+    <!doctype html>
+    <title>Upload new File</title>
+    <h1>Upload new File</h1>
+    <form action="" method=post enctype=multipart/form-data>
+      <p><input type=file name=file>
+         <input type=submit value=Upload>
+    </form>
+    '''
+
+@app.route('/index/<filename>')
+def index(filename):
     
-
-
-
     ##image to text
-    name = "spn7.PNG"
-    image = open('images/'+name,'rb')
+    name = filename
+    image = open('static/image/'+name,'rb')
     url="http://api.idolondemand.com/1/api/sync/ocrdocument/v1"
     apikey="9e791393-6bc4-461f-a0f1-58c3203b64b1"
     def postrequests(function,data={},files={}):
@@ -25,14 +56,20 @@ def index():
                callurl=url.format(function)
                r=requests.post(callurl,data=data,files=files)
                return r.json()
-
-    result=postrequests('ocrdocument',data={},files={'file': image})
+    
+    result = None 
+    while not result:
+    	result=postrequests('ocrdocument',data={},files={'file': image})
+    try:
+	os.remove('static/image/'+name)
+    except:
+	pass
     text =  result[u'text_block']
     text = text[0]
     text = text[u'text']
 
     
-
+    print text	
     ##language recognition
     url = "https://gateway.watsonplatform.net/language-identification-beta/api"
     username = "557a7074-4492-4237-9ee5-c0e1a334411f"
@@ -43,17 +80,22 @@ def index():
     
     orig = response.content[0:2]+response.content[3:5]
     orig = orig.lower()
-
-	##language translation
+ 
+    print orig
+    ##language translation
     url = "https://gateway.watsonplatform.net/machine-translation-beta/api"
     mysid = "mt-"+orig+"-enus"
     username = "aa600dc3-7ad3-41a4-b742-fc70bf92d086"
     password = "qhQudzTHwSqW"
     data = { 'txt': text, 'sid': mysid }
   
-    response=requests.post(url,auth=(username, password),data=data)
+    try:
+    	response=requests.post(url,auth=(username, password),data=data)
+    except:
+	return "couldnt"
     text = response.content
 
+    print text
     #text to speech
     url = "https://stream.watsonplatform.net/text-to-speech-beta/api/v1/synthesize"
     username = "561b8feb-f481-4fa1-bd28-8de0e41fdeb0"
@@ -62,15 +104,23 @@ def index():
     response = None 
     while not response:
     	response=requests.get(url,auth=(username, password),params=data, headers={ 'accept': "audio/wav"}, stream=True, verify=False)
-    name = "myfile.wav"
-    
-    os.remove("static/music/"+name)
+    #name = "myfile.wav"
+    name = text[:10]+".wav"
+    try:
+        os.remove("static/music/"+name)
+    except:
+	pass
 
     file = open("static/music/"+name,"w")
     file.write(response.content)
     file.close()
 
-    return render_template('index.html',music=name,text=text)
+    return redirect(url_for('index2', text=text, name=name))
+
+
+@app.route('/index2/<text>/<name>')
+def index2(text,name):
+	return render_template('index.html',text=text,music=name)
 
 
 port = os.getenv('VCAP_APP_PORT', '5000')
@@ -78,11 +128,8 @@ if __name__ == "__main__":
 	app.run(host='0.0.0.0', port=int(port),debug=True)
 
 
-
 # class UploadForm(Form):
-#     image        = FileField(u'Image File', [validators.regexp(u'^[^/\\]\.jpg$')])
-#     description  = TextAreaField(u'Image Description')
-
+#     image        = FileField(u'Image File', [validators.regexp([^\s]+(\.(?i)(jpg|png|gif|bmp))$)])
 #     def validate_image(form, field):
 #         if field.data:
 #             field.data = re.sub(r'[^a-z0-9_.-]', '_', field.data)
@@ -91,4 +138,5 @@ if __name__ == "__main__":
 #     form = UploadForm(request.POST)
 #     if form.image.data:
 #         image_data = request.FILES[form.image.name].read()
+		
 #         open(os.path.join(UPLOAD_PATH, form.image.data), 'w').write(image_data)
